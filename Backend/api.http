@@ -1,0 +1,28 @@
+### Test server root
+GET http://localhost:4000/
+
+//Register
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "FName": "Ella",
+  "LName": "Brown",
+  "email": "1234567@mynwu.ac.za",
+  "field": "Computer Science",
+  "campus": "Mafikeng",
+  "password": "Pa$$w0rd"
+}
+
+//LOGIN
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "mosa@mynwu.ac.za",
+  "password": "Pa$$w0rd"
+}
+
+//PROTECTED PROFILE (JWT OR SESSION)
+GET http://localhost:4000/api/auth/profile-any
+Authorization: 
