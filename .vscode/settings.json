@@ -1,5 +1,8 @@
 {
     "git.enabled": true,
     "git.blame.editorDecoration.enabled": true,
-    "githubPullRequests.assignCreated": "kinibuhle"
+    "githubPullRequests.assignCreated": "kinibuhle",
+    "rest-client.excludeHostsForProxy": [
+        
+    ]
 }
