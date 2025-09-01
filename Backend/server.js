@@ -26,7 +26,7 @@ app.post('/api/auth/register', async (req, res) => {
   const { FName, LName, name, email, password, field, campus } = req.body;
 
   // build name from FName + LName if provided
-  const fullName = name || `${FName ?? ''} ${LName ?? ''}`.trim();
+  const fullName = name || [FName, LName].filter(Boolean).join(' ');
   if (!fullName || !email || !password) {
     return res.status(400).json({ message: 'Name, email and password are required' });
   }
@@ -73,40 +73,40 @@ app.post('/api/auth/login', async (req, res) => {
   res.json({ token });
 });
 
-// PROTECTED ROUTE
-app.get('/api/protected', (req, res) => {
+// JWT authentication and user lookup middleware
+function authenticateToken(req, res, next) {
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'No token provided' });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({ message: 'Protected data accessed!', user: decoded });
+    const user = users.find(u => u.id === decoded.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    req.user = user;
+    next();
   } catch (err) {
     res.status(401).json({ message: 'Invalid token' });
   }
+}
+
+// PROTECTED ROUTE
+app.get('/api/protected', authenticateToken, (req, res) => {
+  res.json({ message: 'Protected data accessed!', user: {
+    id: req.user.id,
+    name: req.user.name,
+    email: req.user.email
+  }});
 });
 
 // PROFILE ROUTE (matches your test: /api/auth/profile-any)
-app.get('/api/auth/profile-any', (req, res) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'No token provided' });
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // find full user data in our in-memory "db"
-    const user = users.find(u => u.id === decoded.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      field: user.field,
-      campus: user.campus
-    });
-  } catch (err) {
-    res.status(401).json({ message: 'Invalid token' });
-  }
+app.get('/api/auth/profile-any', authenticateToken, (req, res) => {
+  res.json({
+    id: req.user.id,
+    name: req.user.name,
+    email: req.user.email,
+    field: req.user.field,
+    campus: req.user.campus
+  });
 });
 
 //START THE EXPRESS APP
