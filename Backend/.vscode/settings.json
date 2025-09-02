@@ -1,0 +1,18 @@
+{
+    "git.enabled": true,
+    "git.blame.editorDecoration.enabled": true,
+    "githubPullRequests.assignCreated": "kinibuhle",
+    "rest-client.excludeHostsForProxy": [
+        
+
+    ],
+    "remote.portsAttributes": {
+
+        "443": {
+            "protocol": "https"
+        },
+        "8443": {
+            "protocol": "https"
+        }
+    }
+}
