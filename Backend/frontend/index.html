@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interest Selection Quiz</title>
+    <link rel="stylesheet" href="studentInterests.css" />
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Select Your Interests</h1>
+        <p>Choose topics that excite you, so we can recommend the right societies for you.</p>
+
+        <div class="interest-bubbles">
+            <!-- Each bubble has a data-interest attribute -->
+            <span class="bubble" data-interest="Technology">Technology</span>
+            <span class="bubble" data-interest="Sports">Sports</span>
+            <span class="bubble" data-interest="Music">Music</span>
+            <span class="bubble" data-interest="Art">Art</span>
+            <span class="bubble" data-interest="Entrepreneurship">Entrepreneurship</span>
+            <span class="bubble" data-interest="Gaming">Gaming</span>
+            <span class="bubble" data-interest="Volunteering">Volunteering</span>
+            <span class="bubble" data-interest="Science">Science</span>
+            <span class="bubble" data-interest="Debating">Debating</span>
+            <span class="bubble" data-interest="Environment">Environment</span>
+        </div>
+
+        <button id="submitBtn">Submit Interests</button>
+    </div>
+
+<script>
+    // Select all bubble elements
+    const bubbles = document.querySelectorAll('.bubble');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Toggle bubble selection
+    bubbles.forEach(bubble => {
+        bubble.addEventListener('click', () => {
+            bubble.classList.toggle('selected');
+        });
+    });
+</script>
+</body>
+</html>
