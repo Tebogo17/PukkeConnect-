@@ -5,6 +5,7 @@ import bycrypt from 'bcrypt'
 import { createUser } from "../db/userQueries.js";
 //import userModel from '../Models/UserModels.js'
 import jwt from 'jsonwebtoken'
+import { ValidationErrorItem } from 'sequelize';
 
 //Api to Register
 
@@ -52,7 +53,25 @@ const registerUer = async(req,res) => {
             user: newUser,
         });
     }catch (error){
-
-
+        console.log(error)
+        res.json({success:false,message:error.message})
     }
 }
+
+// API for main login
+
+
+//creating error funtion with the name
+const loginUser = async (req,res) =>{    
+
+    //add error handling
+    try{
+
+    }catch(error){
+        console.log(error)
+        res.json({success:false,message:error.message})
+    }
+}
+
+//exporting relevant page 
+export {,loginUser}
