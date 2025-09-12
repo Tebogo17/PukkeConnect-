@@ -6,9 +6,9 @@ POST http://localhost:4000/api/auth/register
 Content-Type: application/json
 
 {
-  "FName": "Ella",
+  "FName": "Ellise",
   "LName": "Brown",
-  "email": "1234567@mynwu.ac.za",
+  "email": "1234576@mynwu.ac.za",
   "field": "Computer Science",
   "campus": "Mafikeng",
   "password": "Pa$$w0rd"
@@ -19,10 +19,10 @@ POST http://localhost:4000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "mosa@mynwu.ac.za",
+  "email":"1234576@mynwu.ac.za",
   "password": "Pa$$w0rd"
 }
 
-//PROTECTED PROFILE (JWT OR SESSION)
+//JWT Token from login response
 GET http://localhost:4000/api/auth/profile-any
-Authorization: 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IjEyMzQ1NzZAbXlud3UuYWMuemEiLCJGTmFtZSI6IkVsbGlzZSIsIkxOYW1lIjoiQnJvd24iLCJmaWVsZCI6IkNvbXB1dGVyIFNjaWVuY2UiLCJjYW1wdXMiOiJNYWZpa2VuZyIsImlhdCI6MTc1NzY2NDU5OSwiZXhwIjoxNzU3NjY4MTk5fQ.VEwnLqmYWCzVxQeUCDn-bVkMrX2fcg_RD5YriKF0dbg
