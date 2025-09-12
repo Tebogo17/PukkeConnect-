@@ -1,111 +1,69 @@
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import pkg from 'pg'
+import express from "express";
+import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import cors from "cors";
 
-const { Pool } = pkg
+dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 4000;
 
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'PukkeConnect',
-  password: 'yourpassword',
-  port: 5432,
-})
+app.use(cors());
+app.use(express.json());
 
-//app config
-const app = express()
-const port = process.env.PORT || 4000
+// In-memory user store
+const users = [];
 
-
-//MIDDLEWARES
-app.use(express.json()) //act as the middleware when the request is published  
-app.use(cors())       //it allows frontend to connect to backend
-
-
-//api endpoint
-app.get('/',(req,res)=>{
-    res.send('API WORKING')
-})
-
-app.post('/api/interests', async (req, res) => {
-    // Extract the student ID and interests from the request body.
-    const { studentId, interests } = req.body;
-
-    // A basic check to ensure the required data is present.
-    if (!studentId || !interests) {
-        return res.status(400).send({ message: 'Missing studentId or interests in the request.' });
-    }
-
-    try {
-        // The `JSON.stringify` method serializes the array into a string format
-        // that can be stored in the database's `Interests` column.
-        const serializedInterests = JSON.stringify(interests);
-        
-        // This is a prepared statement that uses parameterized values ($1, $2)
-        // to prevent SQL injection attacks.
-        const sqlQuery = `
-            UPDATE "STUDENT_USER"
-            SET "Interests" = $1
-            WHERE "Student_Id" = $2;
-        `;
-        
-        // Execute the query using the connection pool.
-        const result = await pool.query(sqlQuery, [serializedInterests, studentId]);
-
-        // Check if the update was successful.
-        // If rowCount is 0, no student with that ID was found.
-        if (result.rowCount === 0) {
-            return res.status(404).send({ message: 'Student ID not found. No interests were saved.' });
-        }
-
-        // Send a success response.
-        console.log(`Successfully updated interests for student ID: ${studentId}`);
-        res.status(200).send({ message: 'Interests saved successfully!' });
-    } catch (err) {
-        // Handle any errors that occur during the database operation.
-        console.error('Error executing query', err.stack);
-        res.status(500).send({ message: 'Error saving interests to the database.' });
-    }
+app.get("/", (req, res) => {
+  res.send("Server is running!");
 });
 
-app.get('/api/societies', async (req, res) => {
-    try {
-        // Query the database to select all data from the "SOCIETY" table.
-        const result = await pool.query('SELECT * FROM "SOCIETY"');
+// Registration endpoint
+app.post("/api/auth/register", async (req, res) => {
+  const { email, password, FName, LName, field, campus } = req.body;
+  if (!email || !password) return res.status(400).json({ message: "Email and password required" });
 
-        // Check if any rows were returned.
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'No societies found.' });
-        }
+  const existingUser = users.find(u => u.email === email);
+  if (existingUser) return res.status(409).json({ message: "User already exists" });
 
-        // Send the query results back as a JSON response.
-        res.status(200).json(result.rows);
-    } catch (err) {
-        // Handle any errors that might occur during the database query.
-        console.error('Error fetching societies:', err.stack);
-        res.status(500).json({ message: 'Error fetching societies from the database.' });
-    }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  users.push({ email, password: hashedPassword, FName, LName, field, campus });
+  res.status(201).json({ message: "User registered successfully" });
 });
 
-app.get('/api/students', async (req, res) => {
-    try {
-        // Query the database to select the Student_Id and Interests from the "STUDENT_USER" table.
-        const result = await pool.query('SELECT "Student_Id", "Interests" FROM "STUDENT_USER"');
+// Login endpoint
+app.post("/api/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ message: "Email and password required" });
 
-        // Check if any student rows were returned.
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'No students found.' });
-        }
+  const user = users.find(u => u.email === email);
+  if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-        // Send the student data back as a JSON response.
-        res.status(200).json(result.rows);
-    } catch (err) {
-        // Handle any errors that might occur during the database query.
-        console.error('Error fetching students:', err.stack);
-        res.status(500).json({ message: 'Error fetching students from the database.' });
-    }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+
+  const token = jwt.sign(
+    { email: user.email, FName: user.FName, LName: user.LName, field: user.field, campus: user.campus },
+    process.env.JWT_SECRET || "secret",
+    { expiresIn: "1h" }
+  );
+  res.json({ message: "Login successful", token });
 });
 
-//START THE EXPRESS APP
-app.listen(port, ()=> console.log("Server Started",port))
+// Profile endpoint (protected)
+app.get("/api/auth/profile-any", (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ message: "No token provided" });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+    res.json({ message: "Profile data", user: decoded });
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
