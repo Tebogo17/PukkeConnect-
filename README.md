@@ -1,6 +1,6 @@
 # 🎓 PukkeConnect Frontend
 
-![PukkeConnect Homepage](./assets/pukkeconnect_homepage.png)
+![PukkeConnect Homepage](https://github.com/Tebogo17/PukkeConnect-/blob/4eccdef6d480d569a03219a51752d83e1509236c/Capture.PNG)
 
 The **PukkeConnect Frontend** is a responsive, modern web interface built for the **PukkeConnect** platform — a university-based digital ecosystem that enables students, academic representatives, and administrators to connect, collaborate, and share information efficiently.
 
